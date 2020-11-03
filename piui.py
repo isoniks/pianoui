@@ -7,10 +7,9 @@ import os
 import sys
 import time
 import json
-import pycurl
-import pprint
-import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BCM) 
+#import pycurl
+#import pprint
+
 
 from time import*
 from threading import Thread
@@ -25,8 +24,6 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 
-from modules.pushbutton import PushButton
-from modules.rotaryencoder import RotaryEncoder
 from modules.display import *
 
 volumio_host = 'localhost'
@@ -52,8 +49,7 @@ UPDATE_INTERVAL = 0.034
 PIXEL_SHIFT_TIME = 120    #time between picture position shifts in sec.
 
 interface = spi(device=0, port=0)
-oled = ssd1322(interface, rotate=2) 
-#without rotate display is 0 degrees, with rotate=2 its 180 degrees
+oled = ssd1322(interface)
 
 oled.WIDTH = 256
 oled.HEIGHT = 64
@@ -61,7 +57,7 @@ oled.state = 'stop'
 oled.stateTimeout = 0
 oled.timeOutRunning = False
 oled.activeSong = ''
-oled.activeArtist = 'VOLuMIO'
+oled.activeArtist = 'YAMAHA'
 oled.playState = 'unknown'
 oled.playPosition = 0
 oled.modal = False
@@ -148,28 +144,21 @@ def SetState(status):
         oled.modal.SetPlayingIcon(oled.playState, 0)
     elif oled.state == STATE_VOLUME:
         oled.modal = VolumeScreen(oled.HEIGHT, oled.WIDTH, oled.volume, font, font2)
-    elif oled.state == STATE_PLAYLIST_MENU:
-        oled.modal = MenuScreen(oled.HEIGHT, oled.WIDTH, font2, oled.playlistoptions, rows=3, label='_/ PlaylistAuswahl \______________________________')
-    elif oled.state == STATE_QUEUE_MENU:
-        oled.modal = MenuScreen(oled.HEIGHT, oled.WIDTH, font2, oled.queue, rows=4, selected=oled.playPosition, showIndex=True)
-    elif oled.state == STATE_LIBRARY_MENU:
-        oled.modal = MenuScreen(oled.HEIGHT, oled.WIDTH, font2, oled.libraryNames, rows=3, label='_/ Musikbibliothek \________________________________')
-    elif oled.state == STATE_LIBRARY_INFO:
-        oled.modal = MediaLibrarayInfo(oled.HEIGHT, oled.WIDTH, oled.activeArtists, oled.activeAlbums, oled.activeSongs, oled.activePlaytime, oled.Art, oled.Alb, oled.Son, oled.Pla, hugefontaw, font4)
-
-def LoadPlaylist(playlistname):
-    print ("loading playlist: " + playlistname.encode('ascii', 'ignore'))
-    oled.playPosition = 0
-    volumioIO.emit('playPlaylist', {'name':playlistname})
-    SetState(STATE_PLAYER)
+    #elif oled.state == STATE_PLAYLIST_MENU:
+    #    oled.modal = MenuScreen(oled.HEIGHT, oled.WIDTH, font2, oled.playlistoptions, rows=3, label='_/ PlaylistAuswahl \______________________________')
+    #elif oled.state == STATE_QUEUE_MENU:
+    #    oled.modal = MenuScreen(oled.HEIGHT, oled.WIDTH, font2, oled.queue, rows=4, selected=oled.playPosition, showIndex=True)
+    #elif oled.state == STATE_LIBRARY_MENU:
+    #    oled.modal = MenuScreen(oled.HEIGHT, oled.WIDTH, font2, oled.libraryNames, rows=3, label='_/ Musikbibliothek \________________________________')
+    #elif oled.state == STATE_LIBRARY_INFO:
+    #    oled.modal = MediaLibrarayInfo(oled.HEIGHT, oled.WIDTH, oled.activeArtists, oled.activeAlbums, oled.activeSongs, oled.activePlaytime, oled.Art, oled.Alb, oled.Son, oled.Pla, hugefontaw, font4)
 
 #In 'onPushState' the whole set of media-information is linked to the variables (eg. artist, song...)
 #On every change in the Playback (pause, other track, etc.) Volumio pushes a set of informations on port 3000.
 #Volumio-OledUI is always listening on this port. If there's new 'data', the "def onPushState(data):" runs again.
 
 def onPushState(data):
-	
-#    print(data) #for log, if enabled you see the values for 'data'
+    print(data) #for log, if enabled you see the values for 'data'
 
     OPDsave = data
 
@@ -254,93 +243,6 @@ def onPushState(data):
                 iconTime = 80
             oled.modal.SetPlayingIcon(oled.playState, iconTime)
 
-def onPushCollectionStats(data):
-    data = json.loads(data)             #data import from REST-API (is set when ButtonD short-pressed in Standby)
-            
-    if "artists" in data:               #used for Media-Library-Infoscreen
-        newArtists = data["artists"]
-    else:
-        newArtists = ''
-    if newArtists is None:
-        newArtists = ''
-
-    if 'albums' in data:                #used for Media-Library-Infoscreen
-        newAlbums = data["albums"]
-    else:
-        newAlbums = ''
-    if newAlbums is None:
-        newAlbums = ''
-
-    if 'songs' in data:                 #used for Media-Library-Infoscreen
-        newSongs = data["songs"]
-    else:
-        newSongs = ''
-    if newSongs is None:
-        newSongs = ''
-
-    if 'playtime' in data:               #used for Media-Library-Infoscreen
-        newPlaytime = data["playtime"]
-    else:
-        newPlaytime = ''
-    if newPlaytime is None:
-        newPlaytime = ''
-
-    oled.activeArtists = str(newArtists) 
-    oled.activeAlbums = str(newAlbums)
-    oled.activeSongs = str(newSongs)
-    oled.activePlaytime = str(newPlaytime)
-	
-    if oled.state == STATE_LIBRARY_INFO and oled.playState == 'info':                                   #this is the "Media-Library-Info-Screen"
-	oled.modal.UpdateLibraryInfo(oled.activeArtists, oled.activeAlbums, oled.activeSongs, oled.activePlaytime, oled.Art, oled.Alb, oled.Son, oled.Pla)  
-
-def onPushQueue(data):
-    oled.queue = [track['name'] if 'name' in track else 'no track' for track in data]
-    print('Queue length is ' + str(len(oled.queue)))
-
-def onPushBrowseSources(data):
-#    print('Browse sources:')
-#    for item in data:
-#        print(item['uri']) 
-    pass
-
-def onLibraryBrowse(data):
-    oled.libraryFull = data
-    itemList = oled.libraryFull['navigation']['lists'][0]['items']
-    oled.libraryNames = [item['title'] if 'title' in item else 'empty' for item in itemList]
-    SetState(STATE_LIBRARY_MENU)
-
-def EnterLibraryItem(itemNo):
-    selectedItem = oled.libraryFull['navigation']['lists'][0]['items'][itemNo]
-    print("Entering library item: " + oled.libraryNames[itemNo].encode('ascii', 'ignore'))
-    if selectedItem['type'][-8:] == 'category' or selectedItem['type'] == 'folder':
-        volumioIO.emit('browseLibrary',{'uri':selectedItem['uri']})
-    else:
-        print("Sending new Queue")
-        volumioIO.emit('clearQueue')        #clear queue and add whole list of items
-        oled.queue = []
-        volumioIO.emit('addToQueue', oled.libraryFull['navigation']['lists'][0]['items'])
-        oled.stateTimeout = 5.0       #maximum time to load new queue
-        while len(oled.queue) == 0 and oled.stateTimeout > 0.1:
-            sleep(0.1) 
-        oled.stateTimeout = 0.2
-        print("Play position = " + str(itemNo))
-        volumioIO.emit('play', {'value':itemNo})
-
-def LibraryReturn():        #go to parent category
-    if not 'prev' in oled.libraryFull['navigation']:
-        SetState(STATE_PLAYER)
-    else:
-        parentCategory = oled.libraryFull['navigation']['prev']['uri']
-        print ("Navigating to parent category in library: " + parentCategory.encode('ascii', 'ignore'))
-        if parentCategory != '' and parentCategory != '/': 
-            volumioIO.emit('browseLibrary',{'uri':parentCategory})
-        else:
-            SetState(STATE_PLAYER)
-
-def onPushListPlaylist(data):
-    global oled
-    if len(data) > 0:
-        oled.playlistoptions = data
 
 #if you wan't to add more textposition: double check if using STATIC or SCROLL text.
 #this needs to be declared two times, first in "self.playingText" AND under: "def UpdatePlayingInfo" or "def UpdateStandbyInfo"
@@ -423,69 +325,6 @@ class NowPlayingScreen():
 	drawalfa.text((left, 4), self.playingIcon, font=self.iconfont, fill=(255, 255, 255, 200))  #(255, 255, 255, 200) means Icon is nearly white. Change 200 to 0 -> icon is not visible. scale = 0-255
         self.iconcountdown = time
 
-class MediaLibrarayInfo():
-    def __init__(self, height, width, row1, row2, row3, row4, row5, row6, row7, row8, fontaw, font4): #this line references to oled.modal = NowPlayingScreen
-        self.height = height
-        self.width = width
-        self.font4 = font4
-        self.fontaw = fontaw
-        self.LibraryInfoText1 = StaticText(self.height, self.width, row5, font4)   #Text for Artists
-        self.LibraryInfoText2 = StaticText(self.height, self.width, row1, font4)   #Number of Artists
-        self.LibraryInfoText3 = StaticText(self.height, self.width, row6, font4)   #Text for Albums
-        self.LibraryInfoText4 = StaticText(self.height, self.width, row2, font4)   #Number of Albums
-        self.LibraryInfoText5 = StaticText(self.height, self.width, row7, font4)   #Text for Songs
-        self.LibraryInfoText6 = StaticText(self.height, self.width, row3, font4)   #Number of Songs
-        self.LibraryInfoText7 = StaticText(self.height, self.width, row8, font4)   #Text for duration
-        self.LibraryInfoText8 = StaticText(self.height, self.width, row4, font4)   #Summary of duration
-        self.icon = {'info':'\F0CA'}
-        self.mediaIcon = self.icon['info']
-        self.iconcountdown = 0
-        self.text1Pos = (140, 4)        					   #Number of Artists
-        self.text2Pos = (140, 18)      						   #Number of Albums
-        self.text3Pos = (140, 32)      						   #Number of Songs
-        self.text4Pos = (140, 46)      						   #Summary of duration
-        self.text5Pos = (42, 4)      						   #Text for Artists
-        self.text6Pos = (42, 18)     						   #Text for Albums
-        self.text7Pos = (42, 32)     						   #Text for Songs
-        self.text8Pos = (42, 46)     						   #Text for duration
-        self.alfaimage = Image.new('RGBA', image.size, (0, 0, 0, 0))
-
-    def UpdateLibraryInfo(self, row1, row2, row3, row4, row5, row6, row7, row8):
-        self.LibraryInfoText1 = StaticText(self.height, self.width, row5, font4)  #Text for Artists
-        self.LibraryInfoText2 = StaticText(self.height, self.width, row1, font4)   #Number of Artists
-        self.LibraryInfoText3 = StaticText(self.height, self.width, row6, font4)  #Text for Albums
-        self.LibraryInfoText4 = StaticText(self.height, self.width, row2, font4)  #Number of Albums
-        self.LibraryInfoText5 = StaticText(self.height, self.width, row7, font4)  #Text for Songs
-        self.LibraryInfoText6 = StaticText(self.height, self.width, row3, font4)  #Number of Songs
-        self.LibraryInfoText7 = StaticText(self.height, self.width, row8, font4)  #Text for duration
-        self.LibraryInfoText8 = StaticText(self.height, self.width, row4, font4)  #Summary of duration
-
-    def DrawOn(self, image):
-        if self.mediaIcon == self.icon['info']:
-            self.LibraryInfoText1.DrawOn(image, self.text5Pos) #Text for Artists
-            self.LibraryInfoText2.DrawOn(image, self.text1Pos)  #Number of Artists
-            self.LibraryInfoText3.DrawOn(image, self.text6Pos) #Text for Albums
-            self.LibraryInfoText4.DrawOn(image, self.text2Pos) #Number of Albums
-            self.LibraryInfoText5.DrawOn(image, self.text7Pos) #Text for Songs
-            self.LibraryInfoText6.DrawOn(image, self.text3Pos) #Number of Songs
-            self.LibraryInfoText7.DrawOn(image, self.text8Pos) #Text for duration
-            self.LibraryInfoText8.DrawOn(image, self.text4Pos) #Number of duration
-                    
-        if self.iconcountdown > 0:
-            compositeimage = Image.composite(self.alfaimage, image.convert('RGBA'), self.alfaimage)
-            image.paste(compositeimage.convert('RGB'), (0, 0))
-            self.iconcountdown -= 1
-            
-    def SetPlayingIcon(self, state, time=0):
-        if state in self.icon:
-            self.mediaIcon = self.icon[state]
-        self.alfaimage.paste((0, 0, 0, 0), [0, 0, image.size[0], image.size[1]])
-        drawalfa = ImageDraw.Draw(self.alfaimage)
-        iconwidth, iconheight = drawalfa.textsize(self.playingIcon, font=self.fontaw)
-        left = (self.width - iconwidth + 42) / 2 #here is defined where the play/pause/stop icons are displayed. 
-        drawalfa.text((left, 4), self.playingIcon, font=self.fontaw, fill=(255, 255, 255, 96))
-        self.iconcountdown = time
-
 class VolumeScreen():
     def __init__(self, height, width, volume, font, font2):
         self.height = height
@@ -514,259 +353,6 @@ class VolumeScreen():
         self.volumeNumber.DrawOn(image, self.numberPos)
         self.volumeBar.DrawOn(image, self.barPos)
 
-class MenuScreen():
-    def __init__(self, height, width, font2, menuList, selected=0, rows=3, label='', showIndex=False):
-        self.height = height
-        self.width = width
-        self.font2 = font2
-        self.selectedOption = selected
-        self.menuLabel = StaticText(self.height, self.width, label, self.font2)
-        if label == '':
-            self.hasLabel = 0
-        else:
-            self.hasLabel = 1
-        self.labelPos = (42, 2)                      #here is the position of the menu title
-        self.menuYPos = 2 + 12 * self.hasLabel
-        self.menurows = rows
-        self.menuText = [None for i in range(self.menurows)]
-        self.menuList = menuList
-        self.totaloptions = len(menuList)
-        self.onscreenoptions = min(self.menurows, self.totaloptions)
-        self.firstrowindex = 0
-        self.showIndex = showIndex
-        self.MenuUpdate()
-
-    def MenuUpdate(self):
-        self.firstrowindex = min(self.firstrowindex, self.selectedOption)
-        self.firstrowindex = max(self.firstrowindex, self.selectedOption - (self.menurows-1))
-        for row in range(self.onscreenoptions):
-            if (self.firstrowindex + row) == self.selectedOption:
-                color = "black"
-                bgcolor = "white"
-            else:
-                color = "white"
-                bgcolor = "black"
-            optionText = self.menuList[row+self.firstrowindex]
-            if self.showIndex:
-                width = 1 + len(str(self.totaloptions))      # more digits needs more space
-                optionText = '{0:{width}d} {1}'.format(row + self.firstrowindex + 1, optionText, width=width)
-            self.menuText[row] = StaticText(self.height, self.width, optionText, self.font2, fill=color, bgcolor=bgcolor)
-        if self.totaloptions == 0:
-            self.menuText[0] = StaticText(self.height, self.width, 'no items..', self.font2, fill="white", bgcolor="black")
-            
-    def NextOption(self):
-        self.selectedOption = min(self.selectedOption + 1, self.totaloptions - 1)
-        self.MenuUpdate()
-
-    def PrevOption(self):
-        self.selectedOption = max(self.selectedOption - 1, 0)
-        self.MenuUpdate()
-
-    def SelectedOption(self):
-        return self.selectedOption
-
-    def DrawOn(self, image):
-        if self.hasLabel:
-            self.menuLabel.DrawOn(image, self.labelPos)
-        for row in range(self.onscreenoptions):
-            self.menuText[row].DrawOn(image, (42, self.menuYPos + row*16))       #Here is the position of the list entrys from left set (42)
-        if self.totaloptions == 0:
-            self.menuText[0].DrawOn(image, (42, self.menuYPos))                  #Here is the position of the list entrys from left set (42)
-	
-def ButtonA_PushEvent(hold_time):
-    global UPDATE_INTERVAL
-    if hold_time < 3:
-#shortpress functions below
-        print('ButtonA short press event')
-        if oled.state == STATE_PLAYER and oled.playState != 'stop':
-            if oled.playState == 'play':
-                volumioIO.emit('pause')
-            else:
-                volumioIO.emit('play')
-        elif oled.state == STATE_PLAYER and oled.playState == 'stop':
-              oled.stateTimeout = 10.0
-              volumioIO.emit('browseLibrary',{'uri':'music-library'})
-        elif oled.state == STATE_LIBRARY_INFO:
-              oled.stateTimeout = 10.0
-              volumioIO.emit('browseLibrary',{'uri':'music-library'})
-        elif oled.state == STATE_PLAYLIST_MENU or oled.state == STATE_QUEUE_MENU or oled.state == STATE_LIBRARY_MENU:
-              oled.modal.PrevOption()
-#longpress functions below
-    elif oled.state == STATE_PLAYER and oled.playState == 'stop':
-	print('ButtonA long press event')
-	oled.ShutdownFlag = True
-        sleep(0.1)
-        show_logo("shutdown.ppm", oled)
-        sleep(5)
-        oled.cleanup()                                              # put display into low power mode
-        volumioIO.emit('shutdown')
-        sleep(60)
-
-def ButtonB_PushEvent(hold_time):
-    global UPDATE_INTERVAL
-    if hold_time < 2:
-#shortpress functions below
-        print('ButtonB short press event')
-	if oled.state == STATE_PLAYER and oled.playState != 'stop':
-            volumioIO.emit('stop')
-        elif oled.state == STATE_PLAYER and oled.playState == 'stop':
-              volumioIO.emit('listPlaylist')
-              oled.stateTimeout = 10.0
-              SetState(STATE_PLAYLIST_MENU)
-        elif oled.state == STATE_LIBRARY_INFO:
-              volumioIO.emit('listPlaylist')
-              oled.stateTimeout = 10.0
-              SetState(STATE_PLAYLIST_MENU)
-        elif oled.state == STATE_PLAYLIST_MENU or oled.state == STATE_QUEUE_MENU or oled.state == STATE_LIBRARY_MENU:
-              oled.modal.NextOption()
-
-def ButtonC_PushEvent(hold_time):
-    global UPDATE_INTERVAL
-    if hold_time < 3:
-#shortpress functions below
-        print('ButtonC short press event')
-        if oled.state == STATE_PLAYER and oled.playState != 'stop':
-            volumioIO.emit('prev')
-        elif oled.state == STATE_PLAYER and oled.playState == 'stop':
-              oled.stateTimeout = 6.0
-              SetState(STATE_QUEUE_MENU)
-        elif oled.state == STATE_LIBRARY_INFO:
-              oled.stateTimeout = 6.0
-              SetState(STATE_QUEUE_MENU)
-#Longpress functions below
-    elif oled.state == STATE_PLAYER and oled.playState != 'stop':
-        print('ButtonC long press event')
-        if oled.repeatTag == False:
-            volumioIO.emit('setRepeat', {"value":"true"})
-            oled.repeatTag = True
-        elif oled.randomTag == True:
-            volumioIO.emit('setRepeat', {"value":"false"})
-            oled.repeatTag = False
-
-def ButtonD_PushEvent(hold_time):
-    global UPDATE_INTERVAL
-    b_obj = BytesIO()
-    crl = pycurl.Curl()
-    if hold_time < 3:
-#shortpress functions below
-        print('ButtonD short press event')
-        if oled.state == STATE_PLAYER and oled.playState != 'stop':
-            volumioIO.emit('next')
-        elif oled.state == STATE_PLAYER and oled.playState == 'stop':
-            SetState(STATE_LIBRARY_INFO)
-	    oled.playState = 'info'
-            crl.setopt(crl.URL, 'localhost:3000/api/v1/collectionstats')
-            crl.setopt(crl.WRITEDATA, b_obj)
-            crl.perform()
-            crl.close()
-            get_body = b_obj.getvalue()
-            onPushCollectionStats(get_body)
-            sleep(0.5) 
-        elif oled.state == STATE_LIBRARY_INFO:
-            SetState(STATE_PLAYER)
-            onPushState(OPDsave)
-        elif oled.state == STATE_PLAYLIST_MENU:
-            LoadPlaylist(oled.playlistoptions[oled.modal.SelectedOption()])
-        elif oled.state == STATE_LIBRARY_MENU:
-            oled.stateTimeout = 10.0
-            EnterLibraryItem(oled.modal.SelectedOption())
-        elif oled.state == STATE_QUEUE_MENU:
-            oled.playPosition = oled.modal.SelectedOption()
-            emit_track = True         # return to player mode
-#Longpress functions below
-    elif oled.state == STATE_PLAYER and oled.playState != 'stop':
-        print('ButtonD long press event')
-        if oled.randomTag == False:
-	    volumioIO.emit('setRandom', {"value":"true"})
-            oled.randomTag = True
-        elif oled.randomTag == True:
-            volumioIO.emit('setRandom', {"value":"false"})
-            oled.randomTag = False
-
-def RightKnob_RotaryEvent(dir):
-    global emit_track
-    if oled.state == STATE_PLAYLIST_MENU or oled.state == STATE_LIBRARY_MENU:
-        oled.stateTimeout = 10.0
-        if dir == RotaryEncoder.LEFT:
-            oled.modal.PrevOption()
-        elif dir == RotaryEncoder.RIGHT:
-            oled.modal.NextOption()
-    elif oled.state == STATE_QUEUE_MENU:
-        oled.stateTimeout = 6.0        
-        if dir == RotaryEncoder.LEFT:
-            oled.modal.PrevOption()
-        elif dir == RotaryEncoder.RIGHT:
-            oled.modal.NextOption()        
-        oled.playPosition = oled.modal.SelectedOption()
-        emit_track = True
-    elif oled.state == STATE_PLAYER and oled.playState != 'stop':
-        oled.stateTimeout = 10.0
-        SetState(STATE_QUEUE_MENU)
-    elif oled.state == STATE_PLAYER and oled.playState == 'stop':
-        oled.stateTimeout = 10.0
-        volumioIO.emit('browseLibrary',{'uri':'music-library'})
-    elif oled.state == STATE_LIBRARY_INFO:
-        oled.stateTimeout = 10.0
-        volumioIO.emit('browseLibrary',{'uri':'music-library'})        
-
-def RightKnob_PushEvent(hold_time):
-    if hold_time < 1:
-#shortpress fuctions below
-        print ('RightKnob_PushEvent SHORT')
-        if oled.state == STATE_PLAYER and oled.playState != 'stop':
-            if oled.playState == 'play':
-                volumioIO.emit('pause')
-            else:
-                volumioIO.emit('play')
-        elif oled.state == STATE_PLAYER and oled.playState == 'stop':
-            oled.stateTimeout = 10.0
-            volumioIO.emit('browseLibrary',{'uri':'music-library'})
-        elif oled.state == STATE_LIBRARY_INFO:
-            oled.stateTimeout = 10.0
-            volumioIO.emit('browseLibrary',{'uri':'music-library'})   
-        elif oled.state == STATE_PLAYLIST_MENU:
-            LoadPlaylist(oled.playlistoptions[oled.modal.SelectedOption()])
-        elif oled.state == STATE_LIBRARY_MENU:
-            oled.stateTimeout = 10.0
-            EnterLibraryItem(oled.modal.SelectedOption())
-        elif oled.state == STATE_QUEUE_MENU:
-            oled.playPosition = oled.modal.SelectedOption()
-            emit_track = True         # return to player mode
-#longpress functions below
-    else:
-        print ('RightKnob_PushEvent')
-        if oled.state == STATE_PLAYER and oled.playState != 'stop':        
-            oled.stateTimeout = 10.0
-            volumioIO.emit('browseLibrary',{'uri':'music-library'})
-        elif oled.state == STATE_LIBRARY_INFO:        
-            oled.stateTimeout = 10.0
-            volumioIO.emit('browseLibrary',{'uri':'music-library'})
-
-
-#Down below is the defenition for the physical buttons.
-#Sample: RightKnob_Push = PushButton(27, max_time=1) -> GPIO 27 is used
-#Which Button is conected to which GPIO? (regarding to wiring diagram Maschine2501/Volumio-OledUI)
-# Button A: GPIO 4
-# Button B: GPIO 17
-# Button C: GPIO 5
-# Button D: GPIO 6
-# Button right-Rotary: GPIO 27
-
-ButtonA_Push = PushButton(4, max_time=3)
-ButtonA_Push.setCallback(ButtonA_PushEvent)
-ButtonB_Push = PushButton(17, max_time=1)
-ButtonB_Push.setCallback(ButtonB_PushEvent)
-ButtonC_Push = PushButton(5, max_time=3)
-ButtonC_Push.setCallback(ButtonC_PushEvent)
-ButtonD_Push = PushButton(6, max_time=3)
-ButtonD_Push.setCallback(ButtonD_PushEvent)
-
-RightKnob_Push = PushButton(27, max_time=1)
-RightKnob_Push.setCallback(RightKnob_PushEvent)
-RightKnob_Rotation = RotaryEncoder(22, 23, pulses_per_cycle=4)
-RightKnob_Rotation.setCallback(RightKnob_RotaryEvent)
-#IR receiver is connected to port 13
-
 show_logo("volumio_logo.ppm", oled)
 sleep(2)
 SetState(STATE_PLAYER)
@@ -783,19 +369,7 @@ receive_thread.daemon = True
 receive_thread.start()
 
 volumioIO.on('pushState', onPushState)
-#volumioIO.on('pushcollectionstats', onPushCollectionStats)
-volumioIO.on('pushListPlaylist', onPushListPlaylist)
-volumioIO.on('pushQueue', onPushQueue)
-volumioIO.on('pushBrowseSources', onPushBrowseSources)
-volumioIO.on('pushBrowseLibrary', onLibraryBrowse)
 
-# get list of Playlists and initial state
-volumioIO.emit('listPlaylist')
-volumioIO.emit('getState')
-volumioIO.emit('getQueue')
-#volumioIO.emit('collectionstats')
-
-#volumioIO.emit('getBrowseSources')
 sleep(0.1)
 
 #def timeupdate()
