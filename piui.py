@@ -271,12 +271,12 @@ class NowPlayingScreen():
 	self.icon = {'play':'\u25B6', 'pause':'\u2389', 'stop':'\u25A0'}       	    #entypo icons
         self.playingIcon = self.icon['play']
         self.iconcountdown = 0
-        self.text1Pos = (42, 2)        #Artist /
-        self.text2Pos = (42, 27)       #Title
-        self.text3Pos = (42, 4)        #clock
-        self.text4Pos = (46, 54)       #IP
+        self.text1Pos = (28, 2)        #Artist /
+        self.text2Pos = (28, 27)       #Title
+        self.text3Pos = (28, 4)        #clock
+        self.text4Pos = (32, 54)       #IP
         self.text5Pos = (182, 54)      #Date
-        self.text6Pos = (42, 52)       #format
+        self.text6Pos = (28, 52)       #format
         self.text7Pos = (156, 52)      #samplerate
         self.text8Pos = (217, 52)      #bitdepth
 	self.alfaimage = Image.new('RGBA', image.size, (0, 0, 0, 0))
@@ -323,7 +323,7 @@ class NowPlayingScreen():
         self.alfaimage.paste((0, 0, 0, 200), [0, 0, image.size[0], image.size[1]])                 #(0, 0, 0, 200) means Background (nowplayingscreen with artist, song etc.) is darkend. Change 200 to 0 -> Background is completely visible. 255 -> Bachground is not visible. scale = 0-255
         drawalfa = ImageDraw.Draw(self.alfaimage)
 	iconwidth, iconheight = drawalfa.textsize(self.playingIcon, font=self.iconfont)            #entypo
-        left = (self.width - iconwidth + 42) / 2						   #here is defined where the play/pause/stop icons are displayed. 
+        left = (self.width - iconwidth + 28) / 2						   #here is defined where the play/pause/stop icons are displayed. 
 	drawalfa.text((left, 4), self.playingIcon, font=self.iconfont, fill=(255, 255, 255, 200))  #(255, 255, 255, 200) means Icon is nearly white. Change 200 to 0 -> icon is not visible. scale = 0-255
         self.iconcountdown = time
 
