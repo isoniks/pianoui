@@ -94,8 +94,8 @@ oled.clear()
 
 font = load_font('Play-Bold.ttf', 26)                       #used for Artist
 font2 = load_font('Play-Regular.ttf', 12)                     #used for all menus
-font3 = load_font('Play-Regular.ttf', 22)                   #used for Song
-font4 = load_font('Play-Regular.ttf', 14)                    #used for Format/Smplerate/Bitdepth
+font3 = load_font('Play-Regular.ttf', 20)                   #used for Song
+font4 = load_font('Oxanium-Medium.ttf', 14)                    #used for Format/Samplerate/Bitdepth
 hugefontaw = load_font('fa-solid-900.ttf', oled.HEIGHT - 4)    #used for play/pause/stop icons -> Status change overlay
 iconfont = load_font('entypo.ttf', oled.HEIGHT - 2)           #used for play/pause/stop/shuffle/repeat... icons
 fontClock = load_font('DSG.ttf', 41)                           #used for clock
