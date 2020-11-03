@@ -353,7 +353,7 @@ class VolumeScreen():
         self.volumeNumber.DrawOn(image, self.numberPos)
         self.volumeBar.DrawOn(image, self.barPos)
 
-show_logo("volumio_logo.ppm", oled)
+# show_logo("volumio_logo.ppm", oled)
 sleep(2)
 SetState(STATE_PLAYER)
 
