@@ -188,7 +188,7 @@ def onPushState(data):
     if newFormat == True:
 	newFormat = 'WebRadio'
     if newFormat == False:
-	newFormat = ''	
+	newFormat = data['trackType']
 	
 	#If a stream (like webradio) is playing, the data set for 'stream'/newFormat is a boolian (True)
 	#drawOn can't handle that and gives an error. 
