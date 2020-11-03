@@ -51,6 +51,7 @@ sudo apt-get install -y python-dev python-pip libfreetype6-dev libjpeg-dev build
 sudo pip install --upgrade pip wheel
 sudo pip install --upgrade setuptools
 sudo pip install --upgrade socketIO-client luma.core==1.8.3 luma.oled==3.1.0
+sudo apt-get install python-pycurl
 git clone https://github.com/isoniks/pianoui.git
 chmod +x ~/pianoui/oledui.py
 sudo cp ~/pianoui/oledui.service /lib/systemd/system/
