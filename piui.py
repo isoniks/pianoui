@@ -187,7 +187,9 @@ def onPushState(data):
         newFormat = ''
     if newFormat == True:
 	newFormat = 'WebRadio'
-
+    if newFormat == False:
+	newFormat = ''	
+	
 	#If a stream (like webradio) is playing, the data set for 'stream'/newFormat is a boolian (True)
 	#drawOn can't handle that and gives an error. 
 	#therefore we use "if newFormat == True:" and define a placeholder Word, you can change it.
