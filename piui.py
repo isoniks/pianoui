@@ -92,7 +92,7 @@ oled.ShutdownFlag = False                                                       
 image = Image.new('RGB', (oled.WIDTH, oled.HEIGHT))  #for Pixelshift: (oled.WIDTH + 4, oled.HEIGHT + 4)) 
 oled.clear()
 
-font = load_font('Play-Bold.ttf', 26)                       #used for Artist
+font = load_font('Play-Bold.ttf', 24)                       #used for Artist
 font2 = load_font('Play-Regular.ttf', 12)                     #used for all menus
 font3 = load_font('Play-Regular.ttf', 20)                   #used for Song
 font4 = load_font('Oxanium-Medium.ttf', 14)                    #used for Format/Samplerate/Bitdepth
