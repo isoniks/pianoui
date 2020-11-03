@@ -10,10 +10,10 @@ Volumio UI for retrofit attempt of Yamaha PianoCraft DVD-E600 with RPi, Volumio 
 * 7 pushbuttons, pull-up resistors, breadboard, wires, pins, glue, dremel, crimping tool, soldering iron
 
 ### Critical Success Factors
-* cofee
+* coffee
 * cat
 * use 3.3V power for OLED 
-* check TWO times wiring (at least power line) for OLED screen
+* check TWO TIMES wiring (at least the power line) for OLED screen
 
 ### Constrains
 * make use of 7 push-buttons on front panel.
