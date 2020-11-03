@@ -68,7 +68,7 @@ class ScrollText(Screen):
 
         self.textlabel = textlabel
         self.textwidth, self.textheight = self.draw.textsize(textlabel, font=font)
-        self.stopPosition =  self.textwidth - width + self.endScrollMargin
+        self.stopPosition =  30 + self.textwidth - width + self.endScrollMargin
 
         self.image = Image.new('RGB', (self.textwidth + 4, self.textheight + 4))    #Need to investigate what are the result of +4 is
         self.draw = ImageDraw.Draw(self.image)
