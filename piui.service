@@ -4,7 +4,7 @@ Description=Volumio oled UI
 [Service]
 Type=simple
 WorkingDirectory=/home/volumio
-ExecStart=/usr/bin/python -u /home/volumio/volui/oledui.py
+ExecStart=/usr/bin/python -u /home/volumio/pianoui/piui.py
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=oledui
