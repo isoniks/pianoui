@@ -1,3 +1,6 @@
+# Attention - WIP
+Work in progress. Don't use it yet.
+
 # Description
 Volumio UI for retrofit attempt of Yamaha PianoCraft DVD-E600 with RPi, Volumio 2, DAC, buttons and PSU.
 
