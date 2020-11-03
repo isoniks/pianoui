@@ -45,7 +45,15 @@ enable SPI bus by adding
 ```
 dtparam=spi=on
 ```
-to /boot/userconfig.txt
+to /boot/userconfig.txt via
+```
+sudo nano /boot/userconfig.txt
+```
+and
+reconfigute timezone
+```
+sudo dpkg-reconfigure tzdata
+```
 
 ### installation steps
 ```
@@ -56,16 +64,16 @@ sudo pip install --upgrade setuptools
 sudo pip install --upgrade socketIO-client luma.core==1.8.3 luma.oled==3.1.0
 sudo apt-get install python-pycurl
 git clone https://github.com/isoniks/pianoui.git
-chmod +x ~/pianoui/oledui.py
-sudo cp ~/pianoui/oledui.service /lib/systemd/system/
+chmod +x ~/pianoui/piui.py
+sudo cp ~/pianoui/piui.service /lib/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable oledui.service
+sudo systemctl enable piui.service
 reboot
 ```
 
 ### how to check the logs
 ```
-sudo journalctl -fu oledui.service
+sudo journalctl -fu piui.service
 ```
 ## Credits & Kudos
 Thanks to following folks for their great projects:
