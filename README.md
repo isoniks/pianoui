@@ -10,7 +10,7 @@ Volumio UI for retrofit attempt of Yamaha PianoCraft DVD-E600 with RPi, Volumio 
 * Raspberry Pi 2B/3B with Volumio2 image
 * RPi DAC BurrBrown PCM 5122 with GPIO pins
 * 2.8" 256x64 Pixels 4-wire SPI OLED Display with SSD1322 controller IC
-* 7 pushbuttons, pull-up resistors, breadboard, wires, pins, glue, dremel, crimping tool, soldering iron
+* 6 pushbuttons, pull-up resistors, breadboard, wires, pins, glue, dremel, crimping tool, soldering iron
 
 ### Critical Success Factors
 * coffee
