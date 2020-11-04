@@ -18,9 +18,10 @@ Volumio UI for retrofit attempt of Yamaha PianoCraft DVD-E600 with RPi, Volumio 
 * use 3.3V power for OLED 
 * check TWO TIMES wiring (at least the power line) for OLED screen
 
-### Constrains
-* make use of 7 push-buttons on front panel.
+### Constraints
+* make use of 6 push-buttons on front panel.
 * the visible area of OLED screen is wider than window in a front glass. First 30 pixels will remain concealed.
+* ttf font must support Cyrillic script
 
 ### Approach
 * Develop screen UI
@@ -65,6 +66,15 @@ sudo pip install --upgrade socketIO-client luma.core==1.8.3 luma.oled==3.1.0
 sudo apt-get install python-pycurl
 git clone https://github.com/isoniks/pianoui.git
 chmod +x ~/pianoui/piui.py
+```
+### test run
+```
+cd pianoui/
+python piui.py
+```
+
+### run as daemon
+```
 sudo cp ~/pianoui/piui.service /lib/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable piui.service
