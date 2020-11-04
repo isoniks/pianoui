@@ -68,8 +68,7 @@ chmod +x ~/pianoui/piui.py
 ```
 ### test run
 ```
-cd pianoui/
-python piui.py
+python pianoui/piui.py
 ```
 
 ### run as daemon
