@@ -7,8 +7,8 @@ import os
 import sys
 import time
 import json
-import pycurl
-import pprint
+#import pycurl
+#import pprint
 
 
 from time import*
@@ -28,21 +28,21 @@ from modules.display import *
 
 volumio_host = 'localhost'
 volumio_port = 3000
-VOLUME_DT = 5    #volume adjustment step
+#VOLUME_DT = 5    #volume adjustment step
 
 volumioIO = SocketIO(volumio_host, volumio_port)
 
 #imports for REST API (MediaInfoScreen)
-b_obj = BytesIO() 
-crl = pycurl.Curl() 
+#b_obj = BytesIO() 
+#crl = pycurl.Curl() 
 
 STATE_NONE = -1
 STATE_PLAYER = 0
-STATE_PLAYLIST_MENU = 1
-STATE_QUEUE_MENU = 2
+#STATE_PLAYLIST_MENU = 1
+#STATE_QUEUE_MENU = 2
 STATE_VOLUME = 3
 STATE_SHOW_INFO = 4
-STATE_LIBRARY_MENU = 5
+#STATE_LIBRARY_MENU = 5
 STATE_LIBRARY_INFO = 6
 
 UPDATE_INTERVAL = 0.034
@@ -57,7 +57,7 @@ oled.state = 'stop'
 oled.stateTimeout = 0
 oled.timeOutRunning = False
 oled.activeSong = ''
-oled.activeArtist = 'YAMAHA'
+oled.activeArtist = 'Play on http://' + os.uname()[1] + '.local'
 oled.playState = 'unknown'
 oled.playPosition = 0
 oled.modal = False
