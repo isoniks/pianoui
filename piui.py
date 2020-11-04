@@ -158,13 +158,11 @@ def SetState(status):
 #Volumio-OledUI is always listening on this port. If there's new 'data', the "def onPushState(data):" runs again.
 
 def onPushState(data):
-    print(data) #for log, if enabled you see the values for 'data'
-
-    OPDsave = data
-
+    #print(data) #Useful for debugging / logging, if enabled you see the values for 'data'
     global OPDsave	
     global newStatus #global definition for newStatus, used at the end-loop to update standby
-
+    OPDsave = data
+    
     if 'title' in data:
         newSong = data['title']
     else:
