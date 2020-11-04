@@ -81,10 +81,10 @@ oled.activeArtists = ''                                                         
 oled.activeAlbums = ''                                                           #makes oled.activeAlbums globaly usable
 oled.activeSongs = ''                                                      	 #makes oled.activeSongs globaly usable
 oled.activePlaytime = ''                                                         #makes oled.activePlaytime globaly usable
-oled.Art = 'Interpreten :'                                                       #sets the Artists-text for the MediaLibrarayInfo
-oled.Alb = 'Alben :'                                                             #sets the Albums-text for the MediaLibrarayInfo
-oled.Son = 'Songs :'                                                             #sets the Songs-text for the MediaLibrarayInfo
-oled.Pla = 'Playtime :'                                                          #sets the Playtime-text for the MediaLibrarayInfo
+#oled.Art = 'Interpreten :'                                                       #sets the Artists-text for the MediaLibrarayInfo
+#oled.Alb = 'Alben :'                                                             #sets the Albums-text for the MediaLibrarayInfo
+#oled.Son = 'Songs :'                                                             #sets the Songs-text for the MediaLibrarayInfo
+#oled.Pla = 'Playtime :'                                                          #sets the Playtime-text for the MediaLibrarayInfo
 oled.randomTag = False                                                           #helper to detect if "Random/shuffle" is set
 oled.repeatTag = False                                                           #helper to detect if "repeat" is set
 oled.ShutdownFlag = False                                                           #helper to detect if "shutdown" is running. Prevents artifacts from Standby-Screen during shutdown
@@ -377,16 +377,16 @@ sleep(0.1)
 #def timeupdate()
 #    start_time = datetime.datetime.now()
 
-try:
-    with open('oledconfig.json', 'r') as f:   #load last playing track number
-        config = json.load(f)
-except IOError:
-    pass
-else:
-    oled.playPosition = config['track']
-    
-if oled.playState != 'play':
-    volumioIO.emit('play', {'value':oled.playPosition})
+#try:
+#    with open('oledconfig.json', 'r') as f:   #load last playing track number
+#        config = json.load(f)
+#except IOError:
+#    pass
+#else:
+#    oled.playPosition = config['track']
+#    
+#if oled.playState != 'play':
+#    volumioIO.emit('play', {'value':oled.playPosition})
 
 varcanc = True                      #helper for pause -> stop timeout counter
 InfoTag = 0                         #helper for missing Artist/Song when changing sources
