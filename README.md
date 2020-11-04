@@ -20,7 +20,7 @@ Volumio UI for retrofit attempt of Yamaha PianoCraft DVD-E600 with RPi, Volumio 
 
 ### Constrains
 * make use of 7 push-buttons on front panel.
-* the visible area of OLED screen is wider than window in a front glass. 28 first columns will remain concealed.
+* the visible area of OLED screen is wider than window in a front glass. First 30 pixels will remain concealed.
 
 ### Approach
 * Develop screen UI
