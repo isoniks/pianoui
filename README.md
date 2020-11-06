@@ -13,7 +13,7 @@ To-do:
 - Handling of Shutdown event on screen
 - Clean-up code
 - Remove unused files (fonts, modules)
-- Does anybody know how to erase symbols from metall faceplate wihout damaging the surface :-) ?
+- Does anybody know how to erase symbols from aluminium faceplate without damaging the lacquered surface :-) ?
 
 ![It works!](https://github.com/isoniks/pianoui/blob/main/readme/yamaha.jpeg?raw=true)
 
