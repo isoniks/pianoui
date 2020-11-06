@@ -1,5 +1,21 @@
 # Attention - WIP
-Work in progress. Don't use it yet.
+Key functions already working:
+- Start-up intro
+- Play / Pause / Stop events properly handled
+- Font changed to Cyrillic
+- Screen offeset (30 px) and scrolling work properly
+
+Interim measures:
+- Pushbuttons (Shutdown / Play-Pause / Prev / Next) working via Volumio GPIO Plugin
+
+To-do:
+- Screen blanking for standby longer than 2 min
+- Handling of Shutdown event on screen
+- Clean-up code
+- Remove unused files (fonts, modules)
+- Does anybody know how to erase symbols from metall faceplate wihout damaging the surface :-) ?
+
+![It works!](https://github.com/isoniks/pianoui/blob/main/readme/yamaha.jpeg?raw=true)
 
 # Description
 Volumio UI for retrofit attempt of Yamaha PianoCraft DVD-E600 with RPi, Volumio 2, DAC, buttons and PSU.
